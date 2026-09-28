@@ -140,6 +140,161 @@ export type Database = {
         }
         Relationships: []
       }
+      // As 4 tabelas abaixo (product_colors .. product_customization_sizes) foram
+      // escritas a mao a partir de
+      // supabase/migrations/20260926200000_shirt_customizer_schema.sql -- ainda nao
+      // existem no banco vivo. Substituir por regeneracao (Supabase CLI/dashboard)
+      // assim que a migration for aplicada, para conferir contra o schema real.
+      product_colors: {
+        Row: {
+          id: string
+          product_id: string
+          name: string
+          hex: string
+          sort_order: number
+          active: boolean
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          name: string
+          hex: string
+          sort_order?: number
+          active?: boolean
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          name?: string
+          hex?: string
+          sort_order?: number
+          active?: boolean
+        }
+        Relationships: []
+      }
+      product_customizer_configs: {
+        Row: {
+          product_id: string
+          enabled: boolean
+          garment_width_cm: number
+          garment_height_cm: number
+          front_print_area: Json
+          back_print_area: Json
+          pricing: Json
+        }
+        Insert: {
+          product_id: string
+          enabled?: boolean
+          garment_width_cm?: number
+          garment_height_cm?: number
+          front_print_area?: Json
+          back_print_area?: Json
+          pricing?: Json
+        }
+        Update: {
+          product_id?: string
+          enabled?: boolean
+          garment_width_cm?: number
+          garment_height_cm?: number
+          front_print_area?: Json
+          back_print_area?: Json
+          pricing?: Json
+        }
+        Relationships: []
+      }
+      product_customizations: {
+        Row: {
+          id: string
+          user_id: string
+          product_id: string
+          color_id: string
+          configuration: Json
+          front_width_cm: number
+          front_height_cm: number
+          back_width_cm: number
+          back_height_cm: number
+          front_area_cm2: number
+          back_area_cm2: number
+          calculated_price: number
+          front_artwork_url: string | null
+          back_artwork_url: string | null
+          front_preview_url: string | null
+          back_preview_url: string | null
+          status: string
+          whatsapp_attachment_status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          product_id: string
+          color_id: string
+          configuration: Json
+          front_width_cm?: number
+          front_height_cm?: number
+          back_width_cm?: number
+          back_height_cm?: number
+          front_area_cm2?: number
+          back_area_cm2?: number
+          calculated_price?: number
+          front_artwork_url?: string | null
+          back_artwork_url?: string | null
+          front_preview_url?: string | null
+          back_preview_url?: string | null
+          status?: string
+          whatsapp_attachment_status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          product_id?: string
+          color_id?: string
+          configuration?: Json
+          front_width_cm?: number
+          front_height_cm?: number
+          back_width_cm?: number
+          back_height_cm?: number
+          front_area_cm2?: number
+          back_area_cm2?: number
+          calculated_price?: number
+          front_artwork_url?: string | null
+          back_artwork_url?: string | null
+          front_preview_url?: string | null
+          back_preview_url?: string | null
+          status?: string
+          whatsapp_attachment_status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      product_customization_sizes: {
+        Row: {
+          id: string
+          customization_id: string
+          size_id: string
+          label: string
+          quantity: number
+        }
+        Insert: {
+          id?: string
+          customization_id: string
+          size_id: string
+          label: string
+          quantity: number
+        }
+        Update: {
+          id?: string
+          customization_id?: string
+          size_id?: string
+          label?: string
+          quantity?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
