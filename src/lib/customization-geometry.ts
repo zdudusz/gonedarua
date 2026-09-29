@@ -3,6 +3,11 @@ import type {
   PrintArea,
 } from "@/components/shirt-customizer/customization.types";
 
+// Medida em cm no formato brasileiro com ate 1 casa ("22,4"), usada no painel,
+// no resumo, na mensagem do WhatsApp e na imagem salva -- sempre o mesmo numero.
+export const formatCm = (cm: number) =>
+  cm.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 1 });
+
 // width/height de uma face, em cm, a partir das proporcoes normalizadas (0..1) e
 // das dimensoes fisicas do produto. Mesma conta que o trigger SQL faz no servidor.
 export function sideAreaCm2(

@@ -3,6 +3,7 @@ import { AlertTriangle, Crosshair, Info, Redo2, Trash2, Undo2 } from "lucide-rea
 import {
   clampSideToPrintArea,
   fitSideToPrintArea,
+  formatCm,
   maxSideWidth,
   sideAreaCm2,
 } from "@/lib/customization-geometry";
@@ -148,7 +149,7 @@ export function ArtworkPanel({
         <div className="min-w-0 flex-1">
           <p className="font-semibold">Sua arte</p>
           <p className="text-sm tabular-nums text-[#707072]">
-            {widthCm.toFixed(1)} × {heightCm.toFixed(1)} cm
+            {formatCm(widthCm)} × {formatCm(heightCm)} cm
           </p>
           <div className="mt-1">
             <ArtworkUploader label="Trocar imagem" variant="button" onUploaded={placeUploaded} />
@@ -194,7 +195,7 @@ export function ArtworkPanel({
 
       <Slider
         label="Tamanho"
-        valueLabel={`${widthCm.toFixed(0)} cm de largura`}
+        valueLabel={`${formatCm(widthCm)} cm de largura`}
         fillPct={Math.min(100, ((value.width - MIN_WIDTH) / (maxWidth - MIN_WIDTH)) * 100)}
       >
         <input

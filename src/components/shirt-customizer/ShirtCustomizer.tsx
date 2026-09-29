@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import logoAsset from "@/assets/logo.webp.asset.json";
 import { cn } from "@/lib/utils";
 import { calculateCustomizationPrice, formatMoney } from "@/lib/customization-pricing";
-import { isWithinPrintArea, sideAreaCm2 } from "@/lib/customization-geometry";
+import { formatCm, isWithinPrintArea, sideAreaCm2 } from "@/lib/customization-geometry";
 import { ArtworkCanvas } from "./ArtworkCanvas";
 import { ArtworkPanel } from "./ArtworkPanel";
 import { CustomizerStepper } from "./CustomizerStepper";
@@ -103,7 +103,7 @@ export function ShirtCustomizer() {
 
   const describeSide = (side: CustomizationSideName) =>
     customization[side].assetUrl
-      ? `Estampa ${dims[side].widthCm.toFixed(0)} × ${dims[side].heightCm.toFixed(0)} cm`
+      ? `Estampa ${formatCm(dims[side].widthCm)} × ${formatCm(dims[side].heightCm)} cm`
       : "Sem estampa";
 
   const nextStep = CUSTOMIZER_STEPS[stepIndex + 1];

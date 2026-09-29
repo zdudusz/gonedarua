@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Check, Download, Loader2, Minus, Plus, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { dataUrlToBlob, renderShirtMockup } from "@/lib/shirt-mockup";
+import { describeArtworkPlacement, renderShirtMockup } from "@/lib/shirt-mockup";
 import { whatsappLink } from "@/lib/whatsapp";
 import { formatMoney } from "@/lib/customization-pricing";
 import { ShirtPreview } from "./ShirtPreview";
@@ -47,18 +47,15 @@ export function SendOrderStep({
 
   const sidesWithArt = (["front", "back"] as const).filter((s) => customization[s].assetUrl);
 
-  // Mockup da camiseta + arte original de cada lado com estampa: o que a loja
-  // precisa pra conferir e produzir.
+  // Uma foto por lado com estampa: a camisa como aparece no site, com a
+  // especificação da moldura. A arte original o cliente já tem.
   async function buildFiles(): Promise<File[]> {
     const files: File[] = [];
     for (const s of sidesWithArt) {
-      const side = customization[s];
-      const mockup = await renderShirtMockup(s, side, color.hex);
+      const mockup = await renderShirtMockup(s, customization, color);
       files.push(
         new File([mockup], `camisa-${color.id}-${SIDE_LABEL[s]}.png`, { type: "image/png" }),
       );
-      const art = await dataUrlToBlob(side.assetUrl!);
-      files.push(new File([art], `arte-${SIDE_LABEL[s]}.webp`, { type: art.type }));
     }
     return files;
   }
@@ -93,6 +90,13 @@ export function SendOrderStep({
     }
   }
 
+  // "Estampa 22,4 × 22,4 cm (5 cm abaixo da gola · centralizada, 12°)"
+  function describeWithPlacement(s: CustomizationSideName) {
+    if (!customization[s].assetUrl) return describeSide(s);
+    const { position, rotation } = describeArtworkPlacement(s, customization);
+    return `${describeSide(s)} (${position}${rotation ? `, girada ${rotation}` : ""})`;
+  }
+
   function sendWhatsapp() {
     if (!store) return;
     const sizes = customization.sizes
@@ -103,8 +107,8 @@ export function SendOrderStep({
       `Olá! Quero fazer um pedido de camisa personalizada na ${store.brand_name}:`,
       "",
       `• Camisa: ${color.name}`,
-      `• Frente: ${describeSide("front")}`,
-      `• Costas: ${describeSide("back")}`,
+      `• Frente: ${describeWithPlacement("front")}`,
+      `• Costas: ${describeWithPlacement("back")}`,
       `• Tamanhos: ${sizes}`,
       "",
       `Valor estimado: ${totalQuantity} × ${formatMoney(unitPrice)} = ${formatMoney(unitPrice * totalQuantity)}`,
@@ -264,7 +268,7 @@ export function SendOrderStep({
               {filesStatus === "done" ? "Imagens salvas" : "1. Salvar imagens"}
             </span>
             <span className="block text-xs text-[#707072]">
-              Prévia + arte original de cada lado
+              Foto da camisa com as medidas da estampa
             </span>
           </span>
         </button>

@@ -14,6 +14,10 @@ export const SILHOUETTE_PATHS = {
   back: outline("C250,84 350,84 370,62"),
 } as const;
 
+// Ponto mais baixo do decote (unidades do viewBox), usado para medir a distancia
+// da estampa ate a gola na imagem de especificacao.
+export const NECK_BOTTOM_Y = { front: 107, back: 78.5 } as const;
+
 // Detalhes desenhados por cima do tecido: interior da gola (a parte de tras vista
 // pela abertura do decote, so na frente),
 // ribana da gola, costuras do ombro, bainhas das mangas e da barra.
