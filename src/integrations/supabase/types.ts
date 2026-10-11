@@ -25,6 +25,8 @@ export type Database = {
           id: string
           name: string
           price: number
+          section_id: string | null
+          sizes: string[]
           sort_order: number
           updated_at: string
         }
@@ -38,6 +40,8 @@ export type Database = {
           id?: string
           name: string
           price: number
+          section_id?: string | null
+          sizes?: string[]
           sort_order?: number
           updated_at?: string
         }
@@ -51,6 +55,43 @@ export type Database = {
           id?: string
           name?: string
           price?: number
+          section_id?: string | null
+          sizes?: string[]
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sections: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
           sort_order?: number
           updated_at?: string
         }
