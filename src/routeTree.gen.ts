@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EditarRouteImport } from './routes/editar'
 import { Route as PersonalizarRouteImport } from './routes/personalizar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditarRoute = EditarRouteImport.update({
+  id: '/editar',
+  path: '/editar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PersonalizarRoute = PersonalizarRouteImport.update({
@@ -25,27 +31,31 @@ const PersonalizarRoute = PersonalizarRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/editar': typeof EditarRoute
   '/personalizar': typeof PersonalizarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/editar': typeof EditarRoute
   '/personalizar': typeof PersonalizarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/editar': typeof EditarRoute
   '/personalizar': typeof PersonalizarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/personalizar'
+  fullPaths: '/' | '/editar' | '/personalizar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/personalizar'
-  id: '__root__' | '/' | '/personalizar'
+  to: '/' | '/editar' | '/personalizar'
+  id: '__root__' | '/' | '/editar' | '/personalizar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EditarRoute: typeof EditarRoute
   PersonalizarRoute: typeof PersonalizarRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/editar': {
+      id: '/editar'
+      path: '/editar'
+      fullPath: '/editar'
+      preLoaderRoute: typeof EditarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/personalizar': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EditarRoute: EditarRoute,
   PersonalizarRoute: PersonalizarRoute,
 }
 export const routeTree = rootRouteImport
