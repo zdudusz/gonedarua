@@ -190,8 +190,8 @@ export function AuthScreen({ mode, redirect }: { mode: Mode; redirect?: string |
                   CONFERE O <em>E-MAIL.</em>
                 </h1>
                 <p className="auth-intro">
-                  Mandamos um código de 6 dígitos para <strong>{email}</strong>. Digite abaixo para
-                  entrar.
+                  Mandamos um código de 6 dígitos para <strong>{email}</strong>. Digite abaixo ou
+                  clique no link do e-mail para entrar.
                 </p>
                 <form onSubmit={(e) => void submitCode(e)} className="auth-form">
                   <label className="auth-field">
