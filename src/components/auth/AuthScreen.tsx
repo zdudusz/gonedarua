@@ -11,7 +11,7 @@ const COPY = {
   login: {
     eyebrow: "DE VOLTA PRA RUA",
     title: ["ENTRA", "AÍ."],
-    intro: "Entre para acompanhar seus pedidos e agilizar a próxima compra.",
+    intro: "Entre com e-mail e senha. Depois mandamos um código de 6 dígitos pro seu e-mail.",
     submit: "ENTRAR",
     switchText: "Ainda não tem conta?",
     switchLink: "CRIAR CONTA",
@@ -40,7 +40,7 @@ function passwordScore(password: string) {
 const SCORE_LABEL = ["", "FRACA", "OK", "BOA", "FORTE"];
 
 export function AuthScreen({ mode, redirect }: { mode: Mode; redirect?: string | undefined }) {
-  const { user, isAdmin, loading, signIn, signUp, signOut } = useAuth();
+  const { user, isAdmin, loading, signIn, signUp, verifyCode, resendCode, signOut } = useAuth();
   const navigate = useNavigate();
   const [store, setStore] = useState<Store>(fallbackStore);
   const [email, setEmail] = useState("");
@@ -49,6 +49,9 @@ export function AuthScreen({ mode, redirect }: { mode: Mode; redirect?: string |
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState<{ text: string; ok?: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
+  // Depois da senha certa, o login pede o codigo de 6 digitos enviado ao e-mail.
+  const [codeStep, setCodeStep] = useState(false);
+  const [code, setCode] = useState("");
   const copy = COPY[mode];
   const score = passwordScore(password);
 
@@ -65,7 +68,29 @@ export function AuthScreen({ mode, redirect }: { mode: Mode; redirect?: string |
     setMessage(null);
     setPassword("");
     setConfirm("");
+    setCodeStep(false);
+    setCode("");
   }, [mode]);
+
+  async function submitCode(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage(null);
+    const result = await verifyCode(email, code);
+    setBusy(false);
+    if (result.error) return setMessage({ text: result.error });
+    void navigate({ to: redirect ?? "/" });
+  }
+
+  async function resend() {
+    setBusy(true);
+    setMessage(null);
+    const result = await resendCode(email);
+    setBusy(false);
+    setMessage(
+      result.error ? { text: result.error } : { ok: true, text: "Mandamos um código novo." },
+    );
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -78,6 +103,11 @@ export function AuthScreen({ mode, redirect }: { mode: Mode; redirect?: string |
     const result = mode === "login" ? await signIn(email, password) : await signUp(email, password);
     setBusy(false);
     if (result.error) return setMessage({ text: result.error });
+    if (result.codeSent) {
+      setPassword("");
+      setCode("");
+      return setCodeStep(true);
+    }
     if (result.needsConfirmation) {
       setPassword("");
       setConfirm("");
@@ -151,6 +181,59 @@ export function AuthScreen({ mode, redirect }: { mode: Mode; redirect?: string |
                 </Link>
                 <button type="button" className="auth-ghost" onClick={() => void signOut()}>
                   <LogOut size={15} /> SAIR DA CONTA
+                </button>
+              </>
+            ) : codeStep ? (
+              <>
+                <p className="eyebrow auth-eyebrow">FALTA SÓ UM PASSO</p>
+                <h1 className="auth-title">
+                  CONFERE O <em>E-MAIL.</em>
+                </h1>
+                <p className="auth-intro">
+                  Mandamos um código de 6 dígitos para <strong>{email}</strong>. Digite abaixo para
+                  entrar.
+                </p>
+                <form onSubmit={(e) => void submitCode(e)} className="auth-form">
+                  <label className="auth-field">
+                    <span>CÓDIGO</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      required
+                      pattern="[0-9]{6}"
+                      maxLength={6}
+                      placeholder="000000"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    />
+                  </label>
+                  <button
+                    type="submit"
+                    disabled={busy || code.length !== 6}
+                    className="auth-submit"
+                  >
+                    <span>{busy ? "AGUARDE..." : "CONFIRMAR E ENTRAR"}</span>
+                    <ArrowRight size={18} />
+                  </button>
+                </form>
+                <button
+                  type="button"
+                  className="auth-ghost"
+                  disabled={busy}
+                  onClick={() => void resend()}
+                >
+                  REENVIAR CÓDIGO
+                </button>
+                <button
+                  type="button"
+                  className="auth-ghost"
+                  onClick={() => {
+                    setCodeStep(false);
+                    setMessage(null);
+                  }}
+                >
+                  <ArrowLeft size={15} /> USAR OUTRO E-MAIL
                 </button>
               </>
             ) : (
