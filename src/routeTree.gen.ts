@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CriarContaRouteImport } from './routes/criar-conta'
 import { Route as EditarRouteImport } from './routes/editar'
+import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as PersonalizarRouteImport } from './routes/personalizar'
 
 const IndexRoute = IndexRouteImport.update({
@@ -18,9 +20,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CriarContaRoute = CriarContaRouteImport.update({
+  id: '/criar-conta',
+  path: '/criar-conta',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditarRoute = EditarRouteImport.update({
   id: '/editar',
   path: '/editar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntrarRoute = EntrarRouteImport.update({
+  id: '/entrar',
+  path: '/entrar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PersonalizarRoute = PersonalizarRouteImport.update({
@@ -31,31 +43,40 @@ const PersonalizarRoute = PersonalizarRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/criar-conta': typeof CriarContaRoute
   '/editar': typeof EditarRoute
+  '/entrar': typeof EntrarRoute
   '/personalizar': typeof PersonalizarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/criar-conta': typeof CriarContaRoute
   '/editar': typeof EditarRoute
+  '/entrar': typeof EntrarRoute
   '/personalizar': typeof PersonalizarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/criar-conta': typeof CriarContaRoute
   '/editar': typeof EditarRoute
+  '/entrar': typeof EntrarRoute
   '/personalizar': typeof PersonalizarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/editar' | '/personalizar'
+  fullPaths: '/' | '/criar-conta' | '/editar' | '/entrar' | '/personalizar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/editar' | '/personalizar'
-  id: '__root__' | '/' | '/editar' | '/personalizar'
+  to: '/' | '/criar-conta' | '/editar' | '/entrar' | '/personalizar'
+  id:
+    '__root__' | '/' | '/criar-conta' | '/editar' | '/entrar' | '/personalizar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CriarContaRoute: typeof CriarContaRoute
   EditarRoute: typeof EditarRoute
+  EntrarRoute: typeof EntrarRoute
   PersonalizarRoute: typeof PersonalizarRoute
 }
 
@@ -68,11 +89,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/criar-conta': {
+      id: '/criar-conta'
+      path: '/criar-conta'
+      fullPath: '/criar-conta'
+      preLoaderRoute: typeof CriarContaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/editar': {
       id: '/editar'
       path: '/editar'
       fullPath: '/editar'
       preLoaderRoute: typeof EditarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entrar': {
+      id: '/entrar'
+      path: '/entrar'
+      fullPath: '/entrar'
+      preLoaderRoute: typeof EntrarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/personalizar': {
@@ -87,7 +122,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CriarContaRoute: CriarContaRoute,
   EditarRoute: EditarRoute,
+  EntrarRoute: EntrarRoute,
   PersonalizarRoute: PersonalizarRoute,
 }
 export const routeTree = rootRouteImport

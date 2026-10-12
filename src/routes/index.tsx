@@ -36,7 +36,7 @@ const ALL = "Todas";
 const OTHERS = "Outras";
 
 export const Route = createFileRoute("/")({
-  // ?entrar=1 abre o painel de login (usado quando /editar barra quem nao e admin).
+  // Links antigos com ?entrar=1 seguem para a pagina /entrar.
   validateSearch: (search: Record<string, unknown>): { entrar?: boolean } =>
     [true, "1", "true"].includes(search["entrar"] as string | boolean) ? { entrar: true } : {},
   head: () => ({
@@ -95,6 +95,9 @@ function Index() {
   useEffect(() => {
     void refresh();
   }, []);
+  useEffect(() => {
+    if (entrar) void navigate({ to: "/entrar", replace: true });
+  }, [entrar, navigate]);
   useEffect(() => {
     const original = document.body.style.overflow;
     if (selected || cartOpen || menuOpen) document.body.style.overflow = "hidden";
@@ -227,12 +230,7 @@ function Index() {
           >
             <Search />
           </Button>
-          <AccountButton
-            defaultOpen={Boolean(entrar)}
-            onOpenChange={(open) => {
-              if (!open && entrar) void navigate({ search: {}, replace: true });
-            }}
-          />
+          <AccountButton />
           <Button
             variant="ghost"
             size="icon"

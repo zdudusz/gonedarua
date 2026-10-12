@@ -41,7 +41,7 @@ export const Route = createFileRoute("/editar")({
 
 // A sessao (JWT) do Supabase fica no navegador, entao a checagem roda depois de
 // montar: o servidor valida o token em verifyAdmin() e so entao o painel aparece.
-// Quem nao e admin volta para a loja com o login aberto. As gravacoes continuam
+// Quem nao e admin vai para /entrar e, depois de logar, volta para /editar. As gravacoes continuam
 // barradas pelo RLS do banco mesmo que alguem burle a tela.
 function EditGate() {
   const navigate = useNavigate();
@@ -49,7 +49,8 @@ function EditGate() {
 
   useEffect(() => {
     let active = true;
-    const deny = () => void navigate({ to: "/", search: { entrar: true }, replace: true });
+    const deny = () =>
+      void navigate({ to: "/entrar", search: { redirect: "/editar" }, replace: true });
     (async () => {
       const { data } = await supabase.auth.getSession();
       if (!data.session) return deny();

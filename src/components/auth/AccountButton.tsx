@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, LogOut, Settings2, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,16 +6,12 @@ import { useAuth } from "./AuthProvider";
 
 type Props = { defaultOpen?: boolean; onOpenChange?: (open: boolean) => void };
 
-// Botao "Entrar / Minha conta" do canto superior direito + painel lateral no
-// mesmo estilo da sacola.
+// Botao "Entrar / Minha conta" do canto superior direito. Logado, abre um
+// painel lateral no mesmo estilo da sacola.
 export function AccountButton({ defaultOpen = false, onOpenChange }: Props) {
-  const { user, isAdmin, loading, signIn, signUp, signOut } = useAuth();
+  const { user, isAdmin, loading, signOut } = useAuth();
   const [open, setOpenState] = useState(defaultOpen);
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [busy, setBusy] = useState(false);
 
   const setOpen = (value: boolean) => {
     setOpenState(value);
@@ -35,22 +31,17 @@ export function AccountButton({ defaultOpen = false, onOpenChange }: Props) {
     };
   }, [open]);
 
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    setBusy(true);
-    setMessage("");
-    const result = mode === "login" ? await signIn(email, password) : await signUp(email, password);
-    if (result.error) setMessage(result.error);
-    else if (result.needsConfirmation)
-      setMessage("Conta criada. Confirme pelo link enviado ao seu e-mail e depois entre.");
-    else {
-      setMessage("");
-      setPassword("");
-    }
-    setBusy(false);
+  // Sem login o botao leva para a pagina /entrar; logado abre o painel da conta.
+  if (!user) {
+    return (
+      <Button variant="ghost" className="account-button" asChild>
+        <Link to="/entrar" aria-label="Entrar ou criar conta">
+          <User />
+          <span className="desktop-only">ENTRAR</span>
+        </Link>
+      </Button>
+    );
   }
-
-  const label = user ? "CONTA" : "ENTRAR";
 
   return (
     <>
@@ -58,10 +49,10 @@ export function AccountButton({ defaultOpen = false, onOpenChange }: Props) {
         variant="ghost"
         className="account-button"
         onClick={() => setOpen(true)}
-        aria-label={user ? "Minha conta" : "Entrar ou criar conta"}
+        aria-label="Minha conta"
       >
         <User />
-        <span className="desktop-only">{label}</span>
+        <span className="desktop-only">CONTA</span>
       </Button>
       {open && (
         <div className="overlay" onClick={() => setOpen(false)}>
@@ -74,8 +65,8 @@ export function AccountButton({ defaultOpen = false, onOpenChange }: Props) {
           >
             <div className="panel-head">
               <div>
-                <p className="eyebrow">{user ? "BEM-VINDO DE VOLTA" : "SUA CONTA"}</p>
-                <h2>{user ? "MINHA CONTA" : mode === "login" ? "ENTRAR" : "CRIAR CONTA"}</h2>
+                <p className="eyebrow">BEM-VINDO DE VOLTA</p>
+                <h2>MINHA CONTA</h2>
               </div>
               <Button
                 variant="ghost"
@@ -89,7 +80,7 @@ export function AccountButton({ defaultOpen = false, onOpenChange }: Props) {
             <div className="admin-content">
               {loading ? (
                 <p className="admin-intro">Carregando...</p>
-              ) : user ? (
+              ) : (
                 <div className="admin-fields">
                   <div className="account-card">
                     <span>CONECTADO COMO</span>
@@ -112,58 +103,6 @@ export function AccountButton({ defaultOpen = false, onOpenChange }: Props) {
                     <LogOut size={15} /> SAIR
                   </Button>
                 </div>
-              ) : (
-                <>
-                  <p className="admin-intro">
-                    Entre para acompanhar seus pedidos e agilizar a próxima compra.
-                  </p>
-                  <div className="admin-tabs">
-                    <Button
-                      variant={mode === "login" ? "default" : "ghost"}
-                      onClick={() => {
-                        setMode("login");
-                        setMessage("");
-                      }}
-                    >
-                      ENTRAR
-                    </Button>
-                    <Button
-                      variant={mode === "signup" ? "default" : "ghost"}
-                      onClick={() => {
-                        setMode("signup");
-                        setMessage("");
-                      }}
-                    >
-                      CRIAR CONTA
-                    </Button>
-                  </div>
-                  <form onSubmit={(e) => void submit(e)} className="admin-fields">
-                    <label className="admin-field">
-                      <span>E-mail</span>
-                      <input
-                        type="email"
-                        autoComplete="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </label>
-                    <label className="admin-field">
-                      <span>Senha</span>
-                      <input
-                        type="password"
-                        autoComplete={mode === "login" ? "current-password" : "new-password"}
-                        required
-                        minLength={6}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </label>
-                    <Button type="submit" disabled={busy} className="w-full rounded-none">
-                      {busy ? "AGUARDE..." : mode === "login" ? "ENTRAR" : "CRIAR CONTA"}
-                    </Button>
-                  </form>
-                </>
               )}
               {message && <p className="admin-message account-message">{message}</p>}
             </div>
