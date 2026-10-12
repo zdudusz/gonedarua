@@ -342,6 +342,8 @@ export type Database = {
     }
     Functions: {
       claim_store_admin: { Args: never; Returns: boolean }
+      device_is_trusted: { Args: { _email: string; _token: string }; Returns: boolean }
+      trust_this_device: { Args: { _token: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
