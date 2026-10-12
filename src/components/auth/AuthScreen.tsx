@@ -52,6 +52,11 @@ export function AuthScreen({ mode, redirect }: { mode: Mode; redirect?: string |
   // Depois da senha certa, o login pede o codigo de 6 digitos enviado ao e-mail.
   const [codeStep, setCodeStep] = useState(false);
   const [code, setCode] = useState("");
+  // Cadastro aguardando o clique no link do e-mail: assim que a conta for
+  // confirmada (em qualquer aparelho), esta aba entra sozinha com a senha.
+  const [pendingSignup, setPendingSignup] = useState<{ email: string; password: string } | null>(
+    null,
+  );
   const copy = COPY[mode];
   const score = passwordScore(password);
 
@@ -70,7 +75,37 @@ export function AuthScreen({ mode, redirect }: { mode: Mode; redirect?: string |
     setConfirm("");
     setCodeStep(false);
     setCode("");
+    setPendingSignup(null);
   }, [mode]);
+
+  useEffect(() => {
+    if (!pendingSignup) return;
+    if (user) {
+      setPendingSignup(null);
+      void navigate({ to: redirect ?? "/" });
+      return;
+    }
+    let done = false;
+    const startedAt = Date.now();
+    const tryLogin = async () => {
+      if (done) return;
+      if (Date.now() - startedAt > 15 * 60_000) return window.clearInterval(timer);
+      const { error } = await supabase.auth.signInWithPassword(pendingSignup);
+      if (error || done) return;
+      done = true;
+      setPendingSignup(null);
+      void navigate({ to: redirect ?? "/" });
+    };
+    // Intervalo folgado para nao bater no limite de tentativas de login do Supabase.
+    const timer = window.setInterval(() => void tryLogin(), 10_000);
+    const onFocus = () => void tryLogin();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      done = true;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [pendingSignup, user, navigate, redirect]);
 
   async function submitCode(event: FormEvent) {
     event.preventDefault();
@@ -109,11 +144,12 @@ export function AuthScreen({ mode, redirect }: { mode: Mode; redirect?: string |
       return setCodeStep(true);
     }
     if (result.needsConfirmation) {
+      setPendingSignup({ email, password });
       setPassword("");
       setConfirm("");
       return setMessage({
         ok: true,
-        text: "Conta criada! Confirme pelo link que mandamos no seu e-mail e depois entre.",
+        text: "Conta criada! Clique no link que mandamos no seu e-mail. Assim que confirmar, você entra automaticamente.",
       });
     }
     void navigate({ to: redirect ?? "/" });
