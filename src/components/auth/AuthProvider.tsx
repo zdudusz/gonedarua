@@ -95,7 +95,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const sendCode = async (email: string): Promise<AuthResult> => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false },
+      // O e-mail tambem traz um link: clicar nele entra direto, como o codigo.
+      options: {
+        shouldCreateUser: false,
+        ...(typeof window !== "undefined" ? { emailRedirectTo: window.location.origin } : {}),
+      },
     });
     return error ? { error: translateAuthError(error.message) } : { error: null, codeSent: true };
   };
