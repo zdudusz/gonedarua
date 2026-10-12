@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/components/cart/CartProvider";
-import { AccountButton } from "@/components/auth/AccountButton";
+import { LoginWidget } from "@/components/auth/LoginWidget";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { whatsappLink } from "@/lib/whatsapp";
 import {
@@ -36,7 +36,7 @@ const ALL = "Todas";
 const OTHERS = "Outras";
 
 export const Route = createFileRoute("/")({
-  // Links antigos com ?entrar=1 seguem para a pagina /entrar.
+  // ?entrar=1 (e os links antigos /entrar e /criar-conta) abre o painel de login.
   validateSearch: (search: Record<string, unknown>): { entrar?: boolean } =>
     [true, "1", "true"].includes(search["entrar"] as string | boolean) ? { entrar: true } : {},
   head: () => ({
@@ -61,7 +61,6 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { entrar } = Route.useSearch();
-  const navigate = Route.useNavigate();
   const { isAdmin } = useAuth();
   const [store, setStore] = useState<Store>(fallbackStore);
   const [products, setProducts] = useState<Product[]>([]);
@@ -95,9 +94,6 @@ function Index() {
   useEffect(() => {
     void refresh();
   }, []);
-  useEffect(() => {
-    if (entrar) void navigate({ to: "/entrar", replace: true });
-  }, [entrar, navigate]);
   useEffect(() => {
     const original = document.body.style.overflow;
     if (selected || cartOpen || menuOpen) document.body.style.overflow = "hidden";
@@ -208,6 +204,7 @@ function Index() {
           >
             <Menu />
           </Button>
+          <LoginWidget defaultOpen={Boolean(entrar)} />
           <a href="#colecao" className="desktop-only">
             COLEÇÃO
           </a>
@@ -230,7 +227,6 @@ function Index() {
           >
             <Search />
           </Button>
-          <AccountButton />
           <Button
             variant="ghost"
             size="icon"

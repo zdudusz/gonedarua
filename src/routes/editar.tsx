@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { AccountButton } from "@/components/auth/AccountButton";
+import { LoginWidget } from "@/components/auth/LoginWidget";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { verifyAdmin } from "@/lib/admin.functions";
 import {
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/editar")({
 
 // A sessao (JWT) do Supabase fica no navegador, entao a checagem roda depois de
 // montar: o servidor valida o token em verifyAdmin() e so entao o painel aparece.
-// Quem nao e admin vai para /entrar e, depois de logar, volta para /editar. As gravacoes continuam
+// Quem nao e admin volta para a loja com o painel de login aberto. As gravacoes continuam
 // barradas pelo RLS do banco mesmo que alguem burle a tela.
 function EditGate() {
   const navigate = useNavigate();
@@ -49,8 +49,7 @@ function EditGate() {
 
   useEffect(() => {
     let active = true;
-    const deny = () =>
-      void navigate({ to: "/entrar", search: { redirect: "/editar" }, replace: true });
+    const deny = () => void navigate({ to: "/", search: { entrar: true }, replace: true });
     (async () => {
       const { data } = await supabase.auth.getSession();
       if (!data.session) return deny();
@@ -345,6 +344,7 @@ function EditPage() {
     >
       <header className="header">
         <div className="header-left">
+          <LoginWidget />
           <Link to="/" className="editor-back">
             <ArrowLeft size={15} /> <span className="desktop-only">VER LOJA</span>
           </Link>
@@ -352,9 +352,7 @@ function EditPage() {
         <Link className="header-brand" to="/" aria-label="Voltar para a loja">
           <img src={store.logo_url} alt={store.brand_name} />
         </Link>
-        <div className="header-right">
-          <AccountButton />
-        </div>
+        <div className="header-right" />
       </header>
       <main className="editor-main">
         <div className="editor-title">
