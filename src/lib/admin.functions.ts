@@ -13,9 +13,14 @@ export const verifyAdmin = createServerFn({ method: "GET" })
       .eq("user_id", context.userId)
       .maybeSingle();
     if (error) throw new Error(error.message);
+    // Admin so com sessao aberta pelo codigo do e-mail (mesma regra do banco).
+    const amr = Array.isArray(context.claims.amr)
+      ? (context.claims.amr as { method?: string }[])
+      : [];
+    const usedEmailCode = amr.some((m) => m?.method === "otp" || m?.method === "magiclink");
     return {
       userId: context.userId,
       email: typeof context.claims.email === "string" ? context.claims.email : null,
-      isAdmin: data?.role === "admin",
+      isAdmin: data?.role === "admin" && usedEmailCode,
     };
   });
